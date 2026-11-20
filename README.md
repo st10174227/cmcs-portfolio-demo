@@ -4,7 +4,7 @@ A personal continuation of Mohammed Ba Yazed's university Contract Monthly Claim
 
 Visitors can try the Lecturer, Coordinator, Manager and HR roles without creating an account. Each browser receives a separate temporary workspace with fictional sample claims. The demo uses the same pages and layout as the account-based application.
 
-**Deployment status:** local browser and Docker operation have been confirmed by the project owner. Public hosting is the next step; there is no live demo link yet.
+**Live demo:** [Try CMCS](https://cmcs-portfolio-demo.onrender.com/) — choose Lecturer, Coordinator, Manager or HR. No registration or password required.
 
 ## What you can try
 
@@ -56,9 +56,9 @@ Open http://localhost:5094/ in a fresh browser session. The Development override
 
 ## Validation
 
-The visitor-demo version passed 55 regression checks on the owner's Windows machine. The subsequent shared-layout update and local Docker demo were reported working by the owner. GitHub Actions is configured to build and run the regression suite on Windows and Linux, and separately build the Docker image. Those hosted checks must pass after publication; no hosted CI result is claimed in advance.
+All 55 regression checks passed on Windows and Linux in GitHub Actions. The production container checks passed. Hosted testing covered the four-role workflow, an invoice download and Excel export.
 
-Checks cover migration compatibility, claim ownership, role authorization, antiforgery protection, workflow transitions, exports, independent visitor workspaces and demo reset. Mobile layout, hosted HTTPS and the full hosted workflow still require browser acceptance.
+Checks cover migration compatibility, claim ownership, role authorization, antiforgery protection, workflow transitions, exports, independent visitor workspaces and demo reset. Mobile layout still needs a visual review.
 
 ## Hosting and limitations
 
