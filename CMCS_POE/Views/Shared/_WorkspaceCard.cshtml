@@ -1,0 +1,28 @@
+@model CMCS_POE.ViewModels.WorkspaceCardViewModel
+@inject CMCS_POE.Demo.DemoOptions Demo
+@{
+    var footerText = (Model.Theme == "warning" || Model.Theme == "info") ? "text-dark" : "text-white";
+}
+<div class="card-body text-center p-4">
+    <div class="icon-circle bg-@Model.Theme bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+        <i class="bi @Model.Icon text-@Model.Theme" style="font-size: 2.5rem;" aria-hidden="true"></i>
+    </div>
+    <h4 class="card-title fw-bold mb-3">@Model.Role</h4>
+    <p class="card-text text-muted">@Model.Description</p>
+    <ul class="list-unstyled text-start small text-muted mt-3">
+        @foreach (var highlight in Model.Highlights)
+        { <li><i class="bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>@highlight</li> }
+    </ul>
+</div>
+@if (Demo.Enabled)
+{
+    <button type="submit" class="card-footer workspace-card-action stretched-link bg-@Model.Theme @footerText text-center py-3 border-0 w-100" aria-label="Try as @Model.Role">
+        <span class="fw-bold">Access Dashboard <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+    </button>
+}
+else
+{
+    <div class="card-footer bg-@Model.Theme @footerText text-center py-3">
+        <span class="fw-bold">Access Dashboard <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+    </div>
+}

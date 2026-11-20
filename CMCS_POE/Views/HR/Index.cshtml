@@ -1,0 +1,209 @@
+@model CMCS_POE.ViewModels.HRDashboardViewModel
+@{
+    ViewData["Title"] = "HR Dashboard";
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="fw-bold">
+                <i class="bi bi-speedometer2 text-primary"></i> HR Dashboard
+            </h2>
+            <p class="text-muted">Overview of claims, payments, and lecturer activity</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-white" style="background: #17a2b8;">
+                <div class="card-body">
+                    <h6 class="text-uppercase opacity-75">
+                        <i class="bi bi-check-circle me-2"></i>Approved claims
+                    </h6>
+                    <h2 class="fw-bold">@Model.TotalApprovedClaims</h2>
+                    <p class="mb-0">R @Model.TotalAmountApproved.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-white" style="background: #28a745;">
+                <div class="card-body">
+                    <h6 class="text-uppercase opacity-75">
+                        <i class="bi bi-cash-coin me-2"></i>Paid Claims
+                    </h6>
+                    <h2 class="fw-bold">@Model.TotalPaidClaims</h2>
+                    <p class="mb-0">R @Model.TotalAmountPaid.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-white" style="background: #ffc107;">
+                <div class="card-body">
+                    <h6 class="text-uppercase opacity-75">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Unpaid Claims
+                    </h6>
+                    <h2 class="fw-bold">@Model.TotalUnpaidClaims</h2>
+                    <p class="mb-0">R @Model.TotalAmountOutstanding.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning text-warning"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-wrap gap-2">
+
+                    <a asp-action="ProcessPayments" class="btn btn-primary">
+                        <i class="bi bi-wallet2 me-1"></i> Process Payments
+                    </a>
+
+                    <a asp-action="Lecturers" class="btn btn-info text-white">
+                        <i class="bi bi-people me-1"></i> Manage Lecturers
+                    </a>
+
+                    <a asp-action="GenerateMonthlyReport" class="btn btn-secondary">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Generate Report
+                    </a>
+
+                    <a asp-action="ExportApprovedClaims" class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Export Claims
+                    </a>
+
+                    <a asp-action="PaymentHistory" class="btn btn-outline-primary">
+                        <i class="bi bi-clock-history me-1"></i> Payment History
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.MonthlyBreakdown.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calendar3 text-primary"></i> Monthly Breakdown
+                        </h5>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Total Claims</th>
+                                        <th>Total Amount</th>
+                                        <th>Paid Claims</th>
+                                        <th>Paid Amount</th>
+                                        <th>Outstanding</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var month in Model.MonthlyBreakdown)
+                                    {
+                                        <tr>
+                                            <td><strong>@month.Month</strong></td>
+                                            <td>@month.ClaimCount</td>
+                                            <td>R @month.TotalAmount.ToString("N2")</td>
+                                            <td>@month.PaidCount</td>
+                                            <td>R @month.PaidAmount.ToString("N2")</td>
+                                            <td class="text-danger fw-bold">
+                                                R @((month.TotalAmount - month.PaidAmount).ToString("N2"))
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history text-success"></i> Recent approved claims
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    @if (!Model.RecentApprovedClaims.Any())
+                    {
+                        <p class="text-muted">No approved claims yet.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Lecturer</th>
+                                        <th>Month</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var claim in Model.RecentApprovedClaims)
+                                    {
+                                        <tr>
+                                            <td>#@claim.ClaimId</td>
+                                            <td>@claim.LecturerName</td>
+                                            <td>@claim.Month</td>
+                                            <td class="fw-bold">R @claim.TotalAmount.ToString("N2")</td>
+
+                                            <td>
+                                                @if (claim.IsPaid)
+                                                {
+                                                    <span class="badge bg-success">Paid</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">Unpaid</span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <a asp-action="GenerateInvoice" asp-route-id="@claim.ClaimId"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-file-earmark-pdf"></i> Invoice
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

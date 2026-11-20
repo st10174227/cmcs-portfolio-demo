@@ -1,0 +1,45 @@
+name: Build and check CMCS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: 10.0.x
+      - name: Build with NuGet audit and run regression checks
+        run: |
+          dotnet build CMCS.PersonalChecks/CMCS.PersonalChecks.csproj -c Release -warnaserror -p:NuGetAuditMode=all
+          if ($LASTEXITCODE -ne 0) { throw 'Build or dependency audit failed.' }
+          dotnet run --project CMCS.PersonalChecks/CMCS.PersonalChecks.csproj -c Release --no-build
+          if ($LASTEXITCODE -ne 0) { throw 'Regression checks failed.' }
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Build demo container
+        run: docker build --file Dockerfile.demo --tag cmcs-demo:ci .

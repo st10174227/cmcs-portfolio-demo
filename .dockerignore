@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/App_Data/
+**/wwwroot/uploads/
+**/*.db
+**/*.db-*
+**/LOCAL-ACCOUNTS*.txt
+.git/
+artifacts/
+CMCS.PersonalChecks/

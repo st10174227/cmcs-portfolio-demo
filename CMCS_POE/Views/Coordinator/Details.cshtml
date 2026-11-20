@@ -1,0 +1,203 @@
+﻿@* @model CMCS_POE.Models.Claim
+@{
+    ViewData["Title"] = $"Claim #{Model.ClaimId} Details";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
+                        <h3 class="mb-0"><i class="bi bi-file-earmark-text"></i> Claim #@Model.ClaimId Details</h3>
+                        <span class="badge bg-light text-dark">@Model.Status</span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Lecturer Information -->
+                    <div class="card mb-4 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-person-badge"></i> Lecturer Information
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Name:</strong> @Model.User.FullName</p>
+                                    <p><strong>Email:</strong> @Model.User.Email</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Department:</strong> @Model.User.Department</p>
+                                    <p><strong>Phone:</strong> @Model.User.PhoneNumber</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Claim Details -->
+                    <div class="card mb-4 border-success">
+                        <div class="card-header bg-success text-white">
+                            <i class="bi bi-calendar3"></i> Claim Details
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold">Claim ID</label>
+                                    <p class="fs-5">#@Model.ClaimId</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold">Month</label>
+                                    <p class="fs-5">@Model.Month</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold">Hours Worked</label>
+                                    <p class="fs-5">@Model.HoursWorked hours</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold">Hourly Rate</label>
+                                    <p class="fs-5">R @Model.HourlyRate.ToString("N2")</p>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="fw-bold">Total Amount</label>
+                                    <div class="card bg-light border-success">
+                                        <div class="card-body text-center">
+                                            <h2 class="text-success mb-0">R @Model.TotalAmount.ToString("N2")</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Submitted Date</label>
+                                    <p>@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Status</label>
+                                    <p><span class="badge bg-warning">@Model.Status</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document -->
+                    <div class="card mb-4 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <i class="bi bi-file-earmark-text"></i> Supporting Document
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.DocumentPath))
+                            {
+                                <div class="alert alert-info">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-check"></i>
+                                            <strong>Document:</strong> @Model.DocumentName
+                                        </div>
+                                        <a asp-action="DownloadDocument" asp-route-id="@Model.ClaimId"
+                                           class="btn btn-primary">
+                                            <i class="bi bi-download"></i> Download Document
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No document attached</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div class="card mb-4 border-info">
+                            <div class="card-header bg-info text-white">
+                                <i class="bi bi-sticky"></i> Additional Notes
+                            </div>
+                            <div class="card-body">
+                                <p>@Model.Notes</p>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-success btn-lg w-100"
+                                    data-bs-toggle="modal" data-bs-target="#verifyModal">
+                                <i class="bi bi-check-circle"></i> Verify Claim
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-danger btn-lg w-100"
+                                    data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="bi bi-x-circle"></i> Reject Claim
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <a asp-action="Index" class="btn btn-secondary btn-lg w-100">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verify Modal -->
+<div class="modal fade" id="verifyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Verify" asp-route-id="@Model.ClaimId" method="post">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Verify Claim #@Model.ClaimId</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Lecturer:</strong> @Model.User.FullName</p>
+                    <p><strong>Amount:</strong> R @Model.TotalAmount.ToString("N2")</p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> This claim will be sent to the Academic Manager for final approval.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Verify Claim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Reject" asp-route-id="@Model.ClaimId" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Reject Claim #@Model.ClaimId</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Lecturer:</strong> @Model.User.FullName</p>
+                    <p><strong>Amount:</strong> R @Model.TotalAmount.ToString("N2")</p>
+                    <hr>
+                    <div class="form-group">
+                        <label for="notes" class="fw-bold">Reason for Rejection <span class="text-danger">*</span></label>
+                        <textarea name="notes" class="form-control" rows="4" required
+                                  placeholder="Please provide a clear reason for rejecting this claim..."></textarea>
+                        <small class="form-text text-muted">This reason will be sent to the lecturer.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Reject Claim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> *@

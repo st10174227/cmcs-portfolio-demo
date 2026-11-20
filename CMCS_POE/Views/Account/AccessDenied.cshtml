@@ -1,0 +1,7 @@
+@{ ViewData["Title"] = "Access unavailable"; }
+<div class="container py-5">
+    <h1 class="h3">This workspace is not available to your account</h1>
+    <p>Your account has access to a different part of the claim workflow.</p>
+    <a asp-controller="Account" asp-action="Workspace" class="btn btn-primary">Open my workspace</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Home</a>
+</div>

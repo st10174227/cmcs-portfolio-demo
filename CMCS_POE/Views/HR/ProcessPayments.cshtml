@@ -1,0 +1,44 @@
+@model CMCS_POE.ViewModels.PaymentBatchViewModel
+@{ ViewData["Title"] = "Payment records"; }
+<div class="container py-5">
+    <h1 class="h3">Record approved payments</h1>
+    <p class="text-muted">Record payment status for approved claims. This action does not transfer money.</p>
+    @if (Model.UnpaidClaims.Count == 0)
+    {
+        <div class="alert alert-light border">No approved claims are waiting for a payment record.</div>
+    }
+    else
+    {
+        <form asp-action="BulkMarkAsPaid" method="post" id="payment-batch" class="d-flex gap-2 mb-3">
+            <button type="submit" class="btn btn-primary">Record selected as paid</button>
+            <button type="submit" formaction="@Url.Action("ExportPaymentBatch", "HR")" class="btn btn-outline-secondary">Export selected records</button>
+        </form>
+        <div class="table-responsive claim-table-shell">
+            <table class="table table-hover align-middle">
+                <caption class="visually-hidden">Approved claims awaiting a payment record</caption>
+                <thead><tr><th scope="col">Select</th><th scope="col">Claim</th><th scope="col">Lecturer</th><th scope="col">Month</th><th scope="col">Amount</th><th scope="col">Payment record</th></tr></thead>
+                <tbody>
+                    @foreach (var claim in Model.UnpaidClaims)
+                    {
+                        <tr>
+                            <td><input type="checkbox" name="claimIds" value="@claim.ClaimId" form="payment-batch" aria-label="Select claim @claim.ClaimId" /></td>
+                            <td><a asp-controller="Claim" asp-action="Details" asp-route-id="@claim.ClaimId">#@claim.ClaimId</a></td>
+                            <td>@claim.LecturerName</td><td>@claim.Month</td><td>R @claim.TotalAmount.ToString("N2")</td>
+                            <td style="min-width: 18rem;">
+                                <form asp-action="MarkAsPaid" method="post" class="d-flex gap-2 mb-2">
+                                    <input type="hidden" name="id" value="@claim.ClaimId" />
+                                    <label class="visually-hidden" for="reference-@claim.ClaimId">Payment reference for claim @claim.ClaimId</label>
+                                    <input id="reference-@claim.ClaimId" name="paymentReference" maxlength="100" class="form-control form-control-sm" placeholder="Payment reference (optional)" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Record paid</button>
+                                </form>
+                                <a asp-action="GenerateInvoice" asp-route-id="@claim.ClaimId" class="small">Download invoice</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <a asp-action="PaymentHistory" class="btn btn-outline-secondary">Payment history</a>
+</div>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

@@ -1,0 +1,49 @@
+@model IEnumerable<CMCS_POE.Models.Claim>
+@inject CMCS_POE.Services.IClaimValidationService ClaimValidation
+@{ ViewData["Title"] = "Manager review"; }
+<div class="container py-5">
+    <h1 class="h3">Manager review</h1>
+    <p class="text-muted">Review the pending claims below. Approval requires a confirmation; rejection requires a reason.</p>
+    
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light border">No claims are awaiting your review.</div>
+    }
+    else
+    {
+        <div class="table-responsive claim-table-shell">
+            <table class="table table-hover align-middle">
+                <caption class="visually-hidden">Claims awaiting manager review</caption>
+                <thead><tr><th scope="col">Claim</th><th scope="col">Lecturer</th><th scope="col">Month</th><th scope="col">Amount</th><th scope="col">Checks</th><th scope="col">Review</th></tr></thead>
+                <tbody>
+                    @foreach (var claim in Model)
+                    {
+                        var warnings = ClaimValidation.GetValidationWarnings(claim);
+                        <tr>
+                            
+                            <td><a asp-controller="Claim" asp-action="Details" asp-route-id="@claim.ClaimId">#@claim.ClaimId</a></td>
+                            <td>@claim.LecturerName</td><td>@claim.Month</td><td>R @claim.TotalAmount.ToString("N2")</td>
+                            <td>
+                                @if (warnings.Count == 0) { <span class="text-success">Within limits</span> }
+                                else { <ul class="small mb-0">@foreach (var warning in warnings) { <li>@warning</li> }</ul> }
+                                @if (claim.DocumentPath is not null)
+                                { <a asp-controller="Claim" asp-action="DownloadFile" asp-route-id="@claim.ClaimId" class="small">Supporting document</a> }
+                            </td>
+                            <td style="min-width: 16rem;">
+                                <a asp-action="Verify" asp-route-id="@claim.ClaimId" class="btn btn-success btn-sm mb-2">Review approval</a>
+                                <form asp-action="Reject" method="post" class="d-flex gap-2">
+                                    <input type="hidden" name="id" value="@claim.ClaimId" />
+                                    <label class="visually-hidden" for="reason-@claim.ClaimId">Rejection reason for claim @claim.ClaimId</label>
+                                    <input id="reason-@claim.ClaimId" name="reason" class="form-control form-control-sm" required maxlength="1000" placeholder="Rejection reason" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

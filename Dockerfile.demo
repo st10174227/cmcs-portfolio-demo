@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY CMCS_POE/CMCS_POE.csproj CMCS_POE/
+RUN dotnet restore CMCS_POE/CMCS_POE.csproj
+COPY CMCS_POE/ CMCS_POE/
+RUN dotnet publish CMCS_POE/CMCS_POE.csproj --configuration Release --no-restore --output /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish/ ./
+ENV ASPNETCORE_ENVIRONMENT=Production \
+    CMCS_DEMO_MODE=true \
+    CMCS_DEMO_DATA_DIR=/tmp/cmcs-demo \
+    ASPNETCORE_HTTP_PORTS=8080
+USER app
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "CMCS_POE.dll"]

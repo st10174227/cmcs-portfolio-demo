@@ -1,0 +1,100 @@
+@model IEnumerable<CMCS_POE.Models.Lecturer>
+@{
+    ViewData["Title"] = "Manage Lecturers";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="bi bi-people"></i> Lecturer Management</h2>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a asp-action="CreateLecturer" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add New Lecturer
+                </a>
+                <a asp-action="ExportLecturers" class="btn btn-success">
+                    <i class="bi bi-file-excel"></i> Export to Excel
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No lecturers found. Add your first lecturer to get started.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Department</th>
+                                <th>Standard Rate</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lecturer in Model)
+                            {
+                                <tr class="@(lecturer.IsActive ? "" : "table-secondary")">
+                                    <td>@lecturer.LecturerId</td>
+                                    <td><strong>@lecturer.FullName</strong></td>
+                                    <td>@lecturer.Email</td>
+                                    <td>@lecturer.PhoneNumber</td>
+                                    <td>@lecturer.Department</td>
+                                    <td>R @lecturer.StandardHourlyRate.ToString("N2")</td>
+                                    <td>
+                                        @if (lecturer.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="EditLecturer" asp-route-id="@lecturer.LecturerId"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </a>
+                                            @if (lecturer.IsActive)
+                                            {
+                                                <form asp-action="DeleteLecturer" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@lecturer.LecturerId" />
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                            onclick="return confirm('Deactivate @lecturer.FullName?')">
+                                                        <i class="bi bi-trash"></i> Deactivate
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div> 
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

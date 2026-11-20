@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Generate Monthly Report";
+    var months = ViewBag.Months as List<string>;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h3><i class="bi bi-file-earmark-pdf"></i> Generate Monthly Report</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="GenerateMonthlyReport" method="post">
+                        <div class="mb-3">
+                            <label for="month" class="form-label">Select Month</label>
+                            <select name="month" class="form-select" required>
+                                <option value="">-- Select Month --</option>
+                                @if (months != null)
+                                {
+                                    @foreach (var month in months)
+                                    {
+                                        <option value="@month">@month</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> This will generate a PDF report for all approved claims in the selected month.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-file-pdf"></i> Generate PDF Report
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

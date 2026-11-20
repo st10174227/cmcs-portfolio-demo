@@ -1,0 +1,134 @@
+@model CMCS_POE.Models.Claim
+@{
+    ViewData["Title"] = $"Claim #{Model.ClaimId} Details";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header @(Model.Status == "Approved" ? "bg-success" : Model.Status.Contains("Rejected") ? "bg-danger" : "bg-primary") text-white">
+                    <h3>
+                        <i class="bi bi-file-earmark-text"></i> Claim #@Model.ClaimId Details
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4 text-center">
+                        @if (Model.Status == "Approved")
+                        {
+                            <span class="badge bg-success fs-5 p-3">
+                                <i class="bi bi-check-circle"></i> @Model.Status
+                            </span>
+                        }
+                        else if (Model.Status.Contains("Rejected"))
+                        {
+                            <span class="badge bg-danger fs-5 p-3">
+                                <i class="bi bi-x-circle"></i> @Model.Status
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info fs-5 p-3">
+                                <i class="bi bi-hourglass"></i> @Model.Status
+                            </span>
+                        }
+                    </div>
+
+                    <h5 class="mb-3">Claim Information</h5>
+                    <div class="table-responsive"><table class="table table-bordered claim-detail-table">
+                        <tr>
+                            <th width="30%">Claim ID</th>
+                            <td>#@Model.ClaimId</td>
+                        </tr>
+                        <tr>
+                            <th>Lecturer Name</th>
+                            <td>@Model.LecturerName</td>
+                        </tr>
+                        <tr>
+                            <th>Month</th>
+                            <td>@Model.Month</td>
+                        </tr>
+                        <tr>
+                            <th>Hours Worked</th>
+                            <td>@Model.HoursWorked hours</td>
+                        </tr>
+                        <tr>
+                            <th>Hourly Rate</th>
+                            <td>R @Model.HourlyRate.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <th>Total Amount</th>
+                            <td><strong class="text-success fs-5">R @Model.TotalAmount.ToString("N2")</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>@Model.Status</td>
+                        </tr>
+                        <tr>
+                            <th>Submitted date</th>
+                            <td>@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                        @if (Model.ApprovedDate.HasValue)
+                        {
+                            <tr>
+                                <th>Approved date</th>
+                                <td>@Model.ApprovedDate.Value.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <tr>
+                                <th>@(Model.Status.Contains("Rejected") ? "Rejection Reason" : "Notes")</th>
+                                <td>
+                                    @if (Model.Status.Contains("Rejected"))
+                                    {
+                                        <span class="text-danger">
+                                            <i class="bi bi-exclamation-triangle"></i> @Model.Notes
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @Model.Notes
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <th>Document</th>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.DocumentPath))
+                                {
+                                    <a asp-controller="Claim" asp-action="DownloadFile"
+                                       asp-route-id="@Model.ClaimId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> Download @Model.DocumentName
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No document attached</span>
+                                }
+                            </td>
+                        </tr>
+                    </table></div>
+
+                    <p class="small"><strong>Payment:</strong> @(Model.IsPaid ? "Paid (recorded)" : Model.Status == ClaimStages.Approved ? "Unpaid" : "Awaiting final approval")</p>
+                    <div class="d-grid gap-2 mt-4">
+                        @if (User.IsInRole(WorkspaceRoles.Lecturer) && ClaimStages.CanEdit(Model))
+                        {
+                            <a asp-controller="Claim" asp-action="Edit" asp-route-id="@Model.ClaimId" class="btn btn-primary">Edit claim</a>
+                        }
+                        @if (User.IsInRole(WorkspaceRoles.Lecturer) && Model.Status.Contains("Rejected"))
+                        {
+                            <a asp-controller="Claim" asp-action="Create" class="btn btn-success">Submit a new claim</a>
+                        }
+                        <a asp-controller="Claim" asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to claims
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

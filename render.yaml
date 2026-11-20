@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: cmcs-portfolio-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.demo
+    healthCheckPath: /health
+    envVars:
+      - key: AllowedHosts
+        value: "*.onrender.com;localhost;127.0.0.1"
+      - key: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+        value: "true"
+      - key: ASPNETCORE_HTTP_PORTS
+        value: "8080"
+      - key: CMCS_DEMO_MODE
+        value: "true"
+      - key: CMCS_DEMO_DATA_DIR
+        value: /tmp/cmcs-demo

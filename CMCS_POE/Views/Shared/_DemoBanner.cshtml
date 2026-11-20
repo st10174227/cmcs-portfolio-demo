@@ -1,0 +1,30 @@
+@inject CMCS_POE.Demo.DemoOptions Demo
+@inject CMCS_POE.Demo.DemoRequestContext Workspace
+@if (Demo.Enabled)
+{
+    <span class="badge rounded-pill bg-light text-dark" title="Interactive demo with fictional, temporary data">Demo</span>
+    <div class="dropdown">
+        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="demo-options" data-bs-toggle="dropdown" aria-expanded="false">
+            Demo options
+        </button>
+        <div class="dropdown-menu dropdown-menu-end demo-options-menu p-3" aria-labelledby="demo-options">
+            <p class="small text-muted mb-2">Explore with sample data. No registration or password is needed.</p>
+            @if (Workspace.Session is not null)
+            {
+                <p class="small text-muted mb-3">Your workspace expires at @Workspace.Session.ExpiresAt.UtcDateTime.ToString("HH:mm") UTC.</p>
+            }
+            else
+            {
+                <p class="small text-muted mb-3">Choose a workspace card on the homepage to begin.</p>
+            }
+            <a asp-controller="Home" asp-action="Index" asp-fragment="dashboards" class="btn btn-outline-primary btn-sm w-100 mb-2">Switch role</a>
+            @if (Workspace.Session is not null)
+            {
+                <form asp-controller="Demo" asp-action="Reset" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Reset my demo</button>
+                </form>
+            }
+            <p class="small text-muted mt-2 mb-0">Use fictional details and sample files. Your changes are temporary.</p>
+        </div>
+    </div>
+}

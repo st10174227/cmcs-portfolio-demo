@@ -1,0 +1,211 @@
+@model IEnumerable<CMCS_POE.Models.Notification>
+@{
+    ViewData["Title"] = "Notifications";
+    var unreadCount = ViewBag.UnreadCount ?? 0;
+}
+
+<style>
+    .notification-card {
+        border-radius: 10px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all .3s ease;
+        border-left: 4px solid transparent;
+    }
+
+        .notification-card.unread {
+            background-color: #f0f6ff;
+            border-left-color: #007bff;
+        }
+
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+    .notification-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+
+        .notification-icon.info {
+            color: #17a2b8;
+        }
+
+        .notification-icon.success {
+            color: #28a745;
+        }
+
+        .notification-icon.warning {
+            color: #ffc107;
+        }
+
+        .notification-icon.danger {
+            color: #dc3545;
+        }
+
+    .notification-content {
+        flex-grow: 1;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        font-size: 1.1rem;
+    }
+
+    .notification-message {
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .notification-time {
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .notification-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .badge-unread {
+        background-color: #007bff;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 20px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+</style>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="bi bi-bell"></i> Notifications
+                        @if (unreadCount > 0)
+                        {
+                            <span class="badge badge-unread">@unreadCount new</span>
+                        }
+                    </h2>
+                    <p class="text-muted mb-0">
+                        @if (unreadCount > 0)
+                        {
+                            <span>You have @unreadCount unread notification@(unreadCount > 1 ? "s" : "")</span>
+                        }
+                        else
+                        {
+                            <span>You're all caught up! 🎉</span>
+                        }
+                    </p>
+                </div>
+                @if (Model.Any())
+                {
+                    <div class="btn-group">
+                        <form asp-action="MarkAllAsRead" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="bi bi-check-all"></i> Mark All Read
+                            </button>
+                        </form>
+                        <form asp-action="DeleteAll" method="post" class="d-inline ms-2"
+                              onsubmit="return confirm('Delete all notifications? This cannot be undone.')">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i> Clear All
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card">
+            <div class="card-body empty-state">
+                <i class="bi bi-bell-slash"></i>
+                <h4>No notifications yet</h4>
+                <p class="text-muted">You'll see claim updates and system notifications here.</p>
+                <a asp-controller="Claim" asp-action="Create" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle"></i> Submit a Claim
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var notification in Model)
+        {
+            <div class="notification-card @(!notification.IsRead ? "unread" : "")">
+                <div class="d-flex align-items-start">
+                    <!-- Icon -->
+                    <div class="notification-icon @notification.Type">
+                        <i class="@notification.Icon"></i>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="notification-content">
+                        <div class="notification-title">
+                            @notification.Title
+                            @if (!notification.IsRead)
+                            {
+                                <span class="badge bg-primary ms-2">New</span>
+                            }
+                        </div>
+                        <div class="notification-message">
+                            @notification.Message
+                        </div>
+                        <div class="notification-time">
+                            <i class="bi bi-clock"></i>
+                            @notification.CreatedDate.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="notification-actions">
+                        @if (!string.IsNullOrEmpty(notification.ActionUrl))
+                        {
+                            <a href="@notification.ActionUrl" class="btn btn-sm btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        }
+
+                        @if (!notification.IsRead)
+                        {
+                            <form asp-action="MarkAsRead" asp-route-id="@notification.NotificationId"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Read">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </form>
+                        }
+
+                        <form asp-action="Delete" asp-route-id="@notification.NotificationId"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Delete this notification?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

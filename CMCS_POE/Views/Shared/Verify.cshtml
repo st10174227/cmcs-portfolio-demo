@@ -1,0 +1,23 @@
+@model CMCS_POE.Models.Claim
+@{ ViewData["Title"] = "Confirm review"; var coordinator = User.IsInRole(WorkspaceRoles.Coordinator); }
+<div class="container py-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 42rem;">
+        <div class="card-body p-4">
+            <h1 class="h3">@(coordinator ? "Confirm verification" : "Confirm approval")</h1>
+            <p>@(coordinator ? "Verify the claim details and send it to the manager for a final decision." : "Approve this verified claim for HR payment recording.")</p>
+            <dl class="row">
+                <dt class="col-sm-4">Claim</dt><dd class="col-sm-8">#@Model.ClaimId</dd>
+                <dt class="col-sm-4">Lecturer</dt><dd class="col-sm-8">@Model.LecturerName</dd>
+                <dt class="col-sm-4">Month</dt><dd class="col-sm-8">@Model.Month</dd>
+                <dt class="col-sm-4">Hours</dt><dd class="col-sm-8">@Model.HoursWorked</dd>
+                <dt class="col-sm-4">Amount</dt><dd class="col-sm-8">R @Model.TotalAmount.ToString("N2")</dd>
+                <dt class="col-sm-4">Current stage</dt><dd class="col-sm-8">@Model.Status</dd>
+            </dl>
+            <form asp-action="Verify" method="post">
+                <input type="hidden" name="id" value="@Model.ClaimId" />
+                <button type="submit" class="btn btn-success">@(coordinator ? "Verify and send to manager" : "Approve claim")</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

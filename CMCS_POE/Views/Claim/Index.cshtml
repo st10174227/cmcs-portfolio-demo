@@ -1,0 +1,64 @@
+@model IEnumerable<CMCS_POE.Models.Claim>
+@using CMCS_POE.Presentation
+@{
+    var lecturerView = User.IsInRole(WorkspaceRoles.Lecturer);
+    ViewData["Title"] = lecturerView ? "My claims" : "Claims overview";
+    var claims = Model.ToList();
+}
+<div class="container py-5">
+    <div class="page-heading">
+        <div><span class="eyebrow">CLAIM WORKSPACE</span><h1>@ViewData["Title"]</h1>
+        <p class="text-muted mb-0">@(lecturerView ? "Submit teaching hours and follow each review decision." : "Inspect claim details, supporting documents and payment records.")</p></div>
+        @if (lecturerView)
+        { <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Submit a claim</a> }
+    </div>
+    @if (claims.Count == 0)
+    {
+        <div class="card empty-state text-center p-5"><i class="bi bi-file-earmark-text text-primary fs-1" aria-hidden="true"></i>
+            <h2 class="h5 mt-3">No claims yet</h2><p class="text-muted mb-0">@(lecturerView ? "Your submitted claims will appear here." : "No claim records are available.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="claims-summary mb-4"><span><strong>@claims.Count</strong> claims</span>
+            <span><strong>@claims.Count(c => ClaimStages.CanCoordinate(c) || ClaimStages.CanManage(c))</strong> awaiting review</span>
+            <span><strong>@claims.Count(c => c.IsPaid)</strong> recorded as paid</span>
+        </div>
+        <div class="table-responsive claim-table-shell" role="region" aria-label="Claim records; scroll horizontally on smaller screens" tabindex="0">
+            <table class="table align-middle mb-0 claim-table">
+                <caption class="visually-hidden">Claim records and permitted actions. All amounts are in South African Rand.</caption>
+                <thead><tr><th scope="col">Claim / lecturer</th><th scope="col">Month</th><th scope="col">Hours</th>
+                <th scope="col" class="text-end">Rate</th><th scope="col" class="text-end">Total</th><th scope="col">Document</th>
+                <th scope="col">Review status</th><th scope="col">Payment</th><th scope="col">Actions</th></tr></thead>
+                <tbody>
+                @foreach (var claim in claims)
+                {
+                    var badge = claim.Status == ClaimStages.Approved ? "bg-success" : claim.Status.Contains("Rejected") ? "bg-danger" : "bg-primary";
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@claim.ClaimId" class="fw-semibold">#@claim.ClaimId</a><div class="small text-muted">@claim.LecturerName</div></td>
+                        <td class="text-nowrap">@claim.Month</td><td>@claim.HoursWorked</td>
+                        <td class="text-end text-nowrap">@Money.Zar(claim.HourlyRate)</td><td class="text-end text-nowrap fw-semibold">@Money.Zar(claim.TotalAmount)</td>
+                        <td>@if (claim.DocumentPath is not null) { <a asp-action="DownloadFile" asp-route-id="@claim.ClaimId" class="small">Download</a> }
+                            else { <span class="small text-muted">No attachment</span> }</td>
+                        <td><span class="badge status-pill @badge">@claim.Status</span></td>
+                        <td><span class="small @(claim.IsPaid ? "text-success" : "text-muted")">@(claim.IsPaid ? "Paid (recorded)" : claim.Status == ClaimStages.Approved ? "Unpaid" : "Awaiting approval")</span></td>
+                        <td><div class="d-flex flex-wrap gap-1 claim-actions">
+                            <a asp-action="Details" asp-route-id="@claim.ClaimId" class="btn btn-sm btn-outline-primary">Details</a>
+                            @if (lecturerView && ClaimStages.CanEdit(claim))
+                            {
+                                <a asp-action="Edit" asp-route-id="@claim.ClaimId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <form asp-action="Delete" method="post" class="m-0" data-confirm="Delete this pending claim?">
+                                    <input type="hidden" name="id" value="@claim.ClaimId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            }
+                        </div></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <p class="small text-muted mt-3">Amounts are shown in South African Rand (ZAR). Open Details to read notes and the full review status.</p>
+    }
+</div>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

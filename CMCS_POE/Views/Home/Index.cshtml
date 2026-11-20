@@ -1,0 +1,289 @@
+@inject CMCS_POE.Demo.DemoOptions Demo
+@using CMCS_POE.ViewModels
+@{
+    ViewData["Title"] = "Home";
+    var cards = new[]
+    {
+        new WorkspaceCardViewModel(WorkspaceRoles.Lecturer, "Submit and track your claims", "bi-person-badge", "primary", new[] { "Submit claims", "Upload documents", "Track status" }),
+        new WorkspaceCardViewModel(WorkspaceRoles.Coordinator, "Review and verify claims", "bi-clipboard-check", "info", new[] { "Review claims", "Bulk verification", "Validation checks" }),
+        new WorkspaceCardViewModel(WorkspaceRoles.Manager, "Review claims awaiting a final decision", "bi-shield-check", "success", new[] { "Final approval", "Rejection reasons", "Claim totals" }),
+        new WorkspaceCardViewModel(WorkspaceRoles.HR, "Payment records", "bi-wallet2", "warning", new[] { "Record payment status", "Generate invoices", "Manage lecturers" })
+    };
+}
+
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+                <h1 class="display-3 fw-bold mb-4 animate-fade-in">
+                    Welcome to <span class="text-primary">CMCS</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Submit teaching hours, review claims and keep payment records in one place.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                    @if (Demo.Enabled)
+                    {
+                        <a href="#dashboards" class="btn btn-primary btn-lg px-5 shadow-sm"><i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Open My Workspace</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Workspace" class="btn btn-primary btn-lg px-5 shadow-sm"><i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Open My Workspace</a>
+                    }
+                    <a href="#features" class="btn btn-outline-primary btn-lg px-5">
+                        Explore Features
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="illustration-card p-4 bg-light rounded-4 shadow-lg">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="stat-card bg-white p-4 rounded-3 text-center shadow-sm">
+                                <i class="bi bi-file-earmark-text text-primary display-4"></i>
+                                <h3 class="mt-3 mb-0 fw-bold">Submit</h3>
+                                <p class="text-muted mb-0">Teaching hours</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card bg-white p-4 rounded-3 text-center shadow-sm">
+                                <i class="bi bi-shield-check text-success display-4"></i>
+                                <h3 class="mt-3 mb-0 fw-bold">Review</h3>
+                                <p class="text-muted mb-0">Claim details</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card bg-white p-4 rounded-3 text-center shadow-sm">
+                                <i class="bi bi-lightning-charge text-warning display-4"></i>
+                                <h3 class="mt-3 mb-0 fw-bold">Approve</h3>
+                                <p class="text-muted mb-0">Review decisions</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card bg-white p-4 rounded-3 text-center shadow-sm">
+                                <i class="bi bi-graph-up text-info display-4"></i>
+                                <h3 class="mt-3 mb-0 fw-bold">Record</h3>
+                                <p class="text-muted mb-0">Payment status</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboards-section py-5 bg-light" id="dashboards">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Choose Your Workspace</h2>
+            <p class="lead text-muted">Explore each stage of the claim workflow</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            @foreach (var card in cards)
+            {
+                if (Demo.Enabled || User.Identity?.IsAuthenticated != true || User.IsInRole(card.Role))
+                {
+                    <div class="col-md-6 col-lg-3">
+                        @if (Demo.Enabled)
+                        {
+                            <form asp-controller="Demo" asp-action="Start" method="post" class="h-100">
+                                <input type="hidden" name="role" value="@card.Role" />
+                                <div class="dashboard-card card h-100 border-0 shadow-sm hover-lift">
+                                    @await Html.PartialAsync("_WorkspaceCard", card)
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Workspace" class="text-decoration-none d-block h-100">
+                                <div class="dashboard-card card h-100 border-0 shadow-sm hover-lift">
+                                    @await Html.PartialAsync("_WorkspaceCard", card)
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="features-section py-5" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Everything You Need to Review a Claim</h2>
+            <p class="lead text-muted">Keep the claim, its review and its records together.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-lightning-charge-fill text-primary display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">Claim Status</h5>
+                    <p class="text-muted">Follow submitted, reviewed and approved claims from the dashboard.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-paperclip text-success display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">Supporting Documents</h5>
+                    <p class="text-muted">Keep supporting files linked to their claim.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-robot text-info display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">Claim Checks</h5>
+                    <p class="text-muted">Check hours, rates and calculated totals before review.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-file-earmark-pdf text-danger display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">PDF Reports</h5>
+                    <p class="text-muted">Download invoices and monthly claim summaries.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-file-earmark-excel text-success display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">Excel Downloads</h5>
+                    <p class="text-muted">Export claim and lecturer records for further review.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-speedometer2 text-warning display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">Review Summaries</h5>
+                    <p class="text-muted">See pending claims, recorded payments and outstanding totals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="workflow-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted">Four stages, with a decision recorded at each review.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="workflow-step text-center">
+                    <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fs-4 fw-bold">1</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Submit</h5>
+                    <p class="text-muted">Lecturer submits claim with hours worked and supporting documents</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="workflow-step text-center">
+                    <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fs-4 fw-bold">2</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Verify</h5>
+                    <p class="text-muted">Coordinator reviews and verifies claim details</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="workflow-step text-center">
+                    <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fs-4 fw-bold">3</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Approve</h5>
+                    <p class="text-muted">Manager provides final approval</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="workflow-step text-center">
+                    <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fs-4 fw-bold">4</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Record</h5>
+                    <p class="text-muted">HR records payment status and generates invoices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <i class="bi bi-file-earmark-check display-4 mb-3"></i>
+                <h3 class="fw-bold mb-2">4</h3>
+                <p class="mb-0">Workflow stages</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-calculator display-4 mb-3"></i>
+                <h3 class="fw-bold mb-2">Totals</h3>
+                <p class="mb-0">Hours &times; hourly rate</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-lightning-fill display-4 mb-3"></i>
+                <h3 class="fw-bold mb-2">Decisions</h3>
+                <p class="mb-0">Coordinator and manager review</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-graph-up-arrow display-4 mb-3"></i>
+                <h3 class="fw-bold mb-2">Reports</h3>
+                <p class="mb-0">PDF and Excel downloads</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+
+    .dashboard-card {
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        border-color: var(--bs-primary)!important;
+    }
+
+    .feature-card {
+        transition: all 0.3s ease;
+        border-radius: 1rem;
+    }
+
+    .feature-card:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-5px);
+    }
+
+
+
+    .workflow-step {
+        position: relative;
+    }
+
+    .step-number {
+        font-size: 1.5rem;
+    }
+
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: scale(1.05);
+    }
+</style>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

@@ -1,0 +1,30 @@
+@model CMCS_POE.ViewModels.LoginViewModel
+@{ ViewData["Title"] = "Sign in"; }
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="h3 mb-3">Welcome back</h1>
+                    <p class="text-muted">Sign in with your assigned account to open your workspace.</p>
+                    <form asp-controller="Account" asp-action="Login" method="post">
+                        <input asp-for="ReturnUrl" type="hidden" />
+                        <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" autocomplete="username" maxlength="254" autofocus />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control" autocomplete="current-password" maxlength="128" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit">Sign in</button>
+                    </form>
+                    <p class="small text-muted mt-3 mb-0">Your account determines which claims and review tools you can access.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

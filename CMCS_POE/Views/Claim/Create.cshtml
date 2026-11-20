@@ -1,0 +1,19 @@
+@model CMCS_POE.ViewModels.ClaimSubmissionViewModel
+@{ ViewData["Title"] = "Submit a claim"; }
+<div class="container py-5">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <h1 class="h3">Submit a claim</h1>
+        <p class="text-muted">Add your teaching hours and supporting information for coordinator review.</p>
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="card card-body shadow-sm">
+            <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
+            @await Html.PartialAsync("_ClaimFields", Model.Claim)
+            <div class="d-flex gap-2 mt-4">
+                <button class="btn btn-primary" type="submit">Submit for review</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div></div>
+</div>
+@section Scripts { <script src="~/js/claim-form.js" asp-append-version="true"></script> }
+
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@

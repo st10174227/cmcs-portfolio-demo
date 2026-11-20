@@ -1,0 +1,135 @@
+@model IEnumerable<CMCS_POE.Models.Claim>
+@{
+    ViewData["Title"] = "Payment History";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-1">
+                <i class="bi bi-receipt text-success me-2"></i> Payment History
+            </h2>
+            <p class="text-muted">All paid claims processed by HR</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Index", "HR")" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <p class="text-muted mt-3">No payment history available yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Claim ID</th>
+                                <th>Lecturer</th>
+                                <th>Month</th>
+                                <th>Amount</th>
+                                <th>Paid Date</th>
+                                <th>Reference</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var claim in Model)
+                            {
+                                <tr>
+                                    <td><strong>#@claim.ClaimId</strong></td>
+
+                                    <td>@claim.LecturerName</td>
+
+                                    <td>@claim.Month</td>
+
+                                    <td class="text-success fw-bold">R @claim.TotalAmount.ToString("N2")</td>
+
+                                    <td>
+                                        @if (claim.PaidDate.HasValue)
+                                        {
+                                            <span>@claim.PaidDate.Value.ToString("yyyy-MM-dd")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(claim.PaymentReference))
+                                        {
+                                            <code class="text-primary">@claim.PaymentReference</code>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <a href="@Url.Action("GenerateInvoice", "HR", new { id = claim.ClaimId })"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Invoice
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total Paid:</strong></td>
+                                <td colspan="4" class="text-success fw-bold fs-5">
+                                    R @Model.Sum(c => c.TotalAmount).ToString("N2")
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Showing @Model.Count() paid claim(s)
+                    </p>
+
+                    <a href="@Url.Action("ExportPaymentHistory", "HR")"
+                       class="btn btn-success">
+                        <i class="bi bi-download me-1"></i> Export to Excel
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-sm {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+    }
+
+    code {
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+</style>
+@* //OpenAI.2025.Chat-GPT(Version 5).[Large language model]Available at: https://chatgpt.com/c/68b46a0b-99f8-8326-98b4-5245e5c93d35[Accessed: 20 November 2025]. *@
