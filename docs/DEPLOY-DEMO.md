@@ -1,6 +1,6 @@
 # Deploying the portfolio demo
 
-This source includes a Docker deployment definition, not a live deployment. Personal repository publication and host creation remain separate actions after checks pass. Use one running instance and ephemeral demo storage. GitHub Pages can host a portfolio/project showcase; it cannot execute this ASP.NET MVC application.
+The personal repository is published and the Render demo is at https://cmcs-portfolio-demo.onrender.com/. The hosted four-role workflow and an invoice download have been exercised; spreadsheet downloads and the remaining release checks still need acceptance. Use one running instance and ephemeral demo storage. GitHub Pages can host a portfolio/project showcase; it cannot execute this ASP.NET MVC application.
 
 ## Local validation
 
@@ -22,7 +22,9 @@ The repository root contains render.yaml, which specifies a free Docker web serv
 
 - Production demo mode uses /tmp/cmcs-demo. It never uses App_Data/Personal. All visitor data is disposable; a restart creates a fresh host session map.
 - Render's HTTPS ingress forwards requests to the app. ASPNETCORE_FORWARDEDHEADERS_ENABLED=true is set in the Render definition for that managed ingress; this setting trusts forwarded proxy headers and must not be carried over blindly to a directly exposed server.
-- AllowedHosts accepts onrender.com subdomains plus loopback in the supplied definition. Restrict it to the actual assigned hostname before public launch; add a custom hostname if one is configured later. The template uses HTTP port 8080 and /health for liveness.
+- AllowedHosts is restricted to cmcs-portfolio-demo.onrender.com and loopback. Add any custom hostname explicitly if one is configured later. The service uses HTTP port 8080 and /health for liveness.
+- PORT=8080 tells Render the same port that ASPNETCORE_HTTP_PORTS binds, avoiding discovery of a different port during the initial deployment.
+- ASPNETCORE_HTTPS_PORT=443 configures the HTTPS redirect destination; it does not create a TLS listener inside the container. Render terminates TLS at its edge. Its forwarded HTTPS requests reach the normal pages and keep Secure cookies. Unforwarded HTTP probes receive a 307 redirect before Razor generates antiforgery tokens. Render accepts 2xx or 3xx HTTP health responses. Do not change antiforgery SecurePolicy to allow insecure production forms.
 - No production account password or local credential file belongs in the repo, Docker image or Render environment. The demo creates only synthetic passwordless identities through its controlled demo endpoint.
 - The source currently pins EF/Identity packages to the previously validated .NET 10 baseline. Before publication, run the package audit below and resolve findings. Container base images follow .NET 10 patch updates; test the built image rather than assuming it matches the Windows environment.
 
@@ -32,6 +34,18 @@ if ($LASTEXITCODE -ne 0) { throw 'Dependency audit command failed.' }
 ```
 
 Review the findings printed by this command; its exit code alone is not proof that no vulnerabilities were reported.
+
+## Production container regression check
+
+The original container had no explicit HTTPS redirect port. Its logs showed unforwarded HTTP requests reaching a secure Razor form and raising an antiforgery SSL configuration exception. The public HTTPS workflow could still work through Render's forwarding ingress, so a Development-only local image check did not expose this case.
+
+After building cmcs-demo:local, run the following in PowerShell:
+
+```powershell
+powershell -NoProfile -File .\scripts\Test-ProductionContainer.ps1 -Image cmcs-demo:local
+```
+
+This starts a temporary container on a loopback-only random port using Production defaults. It checks redirects for unforwarded HTTP requests, then simulates Render's forwarded HTTPS requests and checks role forms, Secure antiforgery cookies and /health. The container is stopped afterward. The same check runs in GitHub Actions after the Docker build. A passing CI check is separate from verification of the newly deployed Render revision.
 
 ## Free-hosting behavior and hosted acceptance
 
@@ -45,3 +59,4 @@ After hosted acceptance, put Live Demo and Source Code links in the repository R
 - Render Docker/.NET support: https://render.com/docs/docker and https://render.com/docs/language-support
 - Render free-plan behavior: https://render.com/docs/free
 - Microsoft proxy header configuration: https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-10.0
+

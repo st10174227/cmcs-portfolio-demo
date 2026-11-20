@@ -11,7 +11,9 @@ COPY --from=build /app/publish/ ./
 ENV ASPNETCORE_ENVIRONMENT=Production \
     CMCS_DEMO_MODE=true \
     CMCS_DEMO_DATA_DIR=/tmp/cmcs-demo \
-    ASPNETCORE_HTTP_PORTS=8080
+    ASPNETCORE_HTTP_PORTS=8080 \
+    ASPNETCORE_HTTPS_PORT=443
 USER app
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "CMCS_POE.dll"]
+

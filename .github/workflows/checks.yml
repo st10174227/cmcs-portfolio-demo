@@ -43,3 +43,7 @@ jobs:
           persist-credentials: false
       - name: Build demo container
         run: docker build --file Dockerfile.demo --tag cmcs-demo:ci .
+      - name: Check production HTTP probes and forwarded HTTPS
+        shell: pwsh
+        run: ./scripts/Test-ProductionContainer.ps1 -Image cmcs-demo:ci
+
